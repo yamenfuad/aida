@@ -46,18 +46,21 @@ export type Database = {
       }
       store_settings: {
         Row: {
+          app_download_url: string | null
           id: string
           store_name: string
           updated_at: string
           whatsapp_number: string
         }
         Insert: {
+          app_download_url?: string | null
           id?: string
           store_name?: string
           updated_at?: string
           whatsapp_number?: string
         }
         Update: {
+          app_download_url?: string | null
           id?: string
           store_name?: string
           updated_at?: string

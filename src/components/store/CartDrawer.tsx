@@ -1,4 +1,5 @@
-import { X, Plus, Minus, Trash2, MessageCircle } from 'lucide-react';
+import { Plus, Minus, Trash2, MessageCircle } from 'lucide-react';
+import { formatPrice } from '@/lib/formatPrice';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useCart } from '@/contexts/CartContext';
@@ -43,10 +44,10 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
     }
 
     const orderDetails = items
-      .map((item) => `• ${item.name} × ${item.quantity} = ${(item.price * item.quantity).toFixed(2)} ر.س`)
+      .map((item) => `• ${item.name} × ${item.quantity} = ${formatPrice(item.price * item.quantity)}`)
       .join('\n');
 
-    const message = `*طلب جديد من متجر عايدة* 🛒\n\n${orderDetails}\n\n*الإجمالي: ${totalPrice.toFixed(2)} ر.س*`;
+    const message = `*طلب جديد من متجر عايدة* 🛒\n\n${orderDetails}\n\n*الإجمالي: ${formatPrice(totalPrice)}*`;
 
     const encodedMessage = encodeURIComponent(message);
     const cleanNumber = whatsappNumber.replace(/\D/g, '');
@@ -95,7 +96,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                       {item.name}
                     </h4>
                     <p className="text-primary font-semibold text-sm mt-1">
-                      {item.price.toFixed(2)} ر.س
+                      {formatPrice(item.price)}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <Button
@@ -132,7 +133,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
             <div className="border-t pt-4 space-y-4">
               <div className="flex justify-between items-center text-lg font-bold">
                 <span>الإجمالي:</span>
-                <span className="text-primary">{totalPrice.toFixed(2)} ر.س</span>
+                <span className="text-primary">{formatPrice(totalPrice)}</span>
               </div>
               <Button
                 onClick={handleCheckout}

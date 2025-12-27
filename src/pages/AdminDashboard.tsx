@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Product, ProductCategory, CATEGORIES, StoreSettings } from '@/types/product';
+import { formatPrice } from '@/lib/formatPrice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Plus, Pencil, Trash2, Search, LogOut, Store, Settings, Package } from 'lucide-react';
+import { Loader2, Plus, Pencil, Trash2, Search, LogOut, Store, Settings, Package, Download } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function AdminDashboard() {
@@ -34,6 +35,7 @@ export default function AdminDashboard() {
   
   // Settings
   const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [appDownloadUrl, setAppDownloadUrl] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
 
   useEffect(() => {
@@ -83,6 +85,7 @@ export default function AdminDashboard() {
 
     if (data && !error) {
       setWhatsappNumber(data.whatsapp_number);
+      setAppDownloadUrl(data.app_download_url || '');
     }
   };
 
@@ -90,7 +93,11 @@ export default function AdminDashboard() {
     setSavingSettings(true);
     const { error } = await supabase
       .from('store_settings')
-      .update({ whatsapp_number: whatsappNumber, updated_at: new Date().toISOString() })
+      .update({ 
+        whatsapp_number: whatsappNumber, 
+        app_download_url: appDownloadUrl,
+        updated_at: new Date().toISOString() 
+      })
       .not('id', 'is', null);
 
     if (error) {
@@ -354,7 +361,7 @@ export default function AdminDashboard() {
                             <h3 className="font-semibold text-foreground">{product.name}</h3>
                             <p className="text-sm text-muted-foreground">{product.category}</p>
                             <p className="text-primary font-bold mt-1">
-                              {product.price.toFixed(2)} ر.س
+                              {formatPrice(product.price)}
                             </p>
                           </div>
                           <div className="flex items-center gap-1">
@@ -419,6 +426,22 @@ export default function AdminDashboard() {
                   />
                   <p className="text-xs text-muted-foreground">
                     أدخل الرقم بدون علامة + (مثال: 966500000000)
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Download className="w-4 h-4" />
+                    رابط تنزيل التطبيق
+                  </Label>
+                  <Input
+                    value={appDownloadUrl}
+                    onChange={(e) => setAppDownloadUrl(e.target.value)}
+                    placeholder="https://example.com/app.apk"
+                    dir="ltr"
+                    className="text-left"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    أدخل رابط تنزيل التطبيق (اتركه فارغاً لإخفاء الزر)
                   </p>
                 </div>
                 <Button onClick={handleSaveSettings} disabled={savingSettings}>

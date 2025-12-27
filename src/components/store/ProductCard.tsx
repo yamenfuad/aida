@@ -1,5 +1,6 @@
 import { Plus, Check } from 'lucide-react';
 import { Product } from '@/types/product';
+import { formatPrice } from '@/lib/formatPrice';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
@@ -24,7 +25,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Card className="overflow-hidden bg-card shadow-card hover:shadow-hover transition-all duration-300 animate-slide-up">
-      <div className="aspect-square relative overflow-hidden bg-secondary">
+      <div className="aspect-[4/5] relative overflow-hidden bg-secondary">
         {product.image_url ? (
           <img
             src={product.image_url}
@@ -49,7 +50,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </h3>
         <div className="flex items-center justify-between gap-2">
           <span className="text-primary font-bold text-lg">
-            {product.price.toFixed(2)} ر.س
+            {formatPrice(product.price)}
           </span>
           <Button
             size="sm"
