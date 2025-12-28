@@ -6,6 +6,7 @@ import { ProductGrid } from '@/components/store/ProductGrid';
 import { CartDrawer } from '@/components/store/CartDrawer';
 import { Product, ProductCategory } from '@/types/product';
 import { supabase } from '@/integrations/supabase/client';
+import aidaLogo from '@/assets/Aida.png';
 
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -49,6 +50,23 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header onCartClick={() => setCartOpen(true)} />
+
+      {/* Hero Section */}
+      <section className="py-8 bg-gradient-to-b from-primary/10 to-background">
+        <div className="container text-center space-y-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+            مرحباً بك في متجرنا
+          </h1>
+          <img 
+            src={aidaLogo} 
+            alt="شعار المتجر" 
+            className="w-32 h-32 md:w-40 md:h-40 mx-auto object-contain"
+          />
+          <p className="text-muted-foreground text-lg">
+            اكتشف منتجاتنا المميزة و اطلب ما تحتاجه عبر واتساب.
+          </p>
+        </div>
+      </section>
 
       <main className="container py-4 space-y-4">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
