@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/store/Header';
 import { SearchBar } from '@/components/store/SearchBar';
 import { CategoryFilter } from '@/components/store/CategoryFilter';
@@ -9,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import aidaLogo from '@/assets/Aida.png';
 
 const Index = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,6 +65,12 @@ const Index = () => {
             className="w-32 h-32 md:w-40 md:h-40 mx-auto object-contain"
           />
           <p className="text-muted-foreground text-lg">
+            <span 
+              onClick={() => navigate('/admin-login')}
+              className="cursor-pointer opacity-0 hover:opacity-10 select-none"
+            >
+              •
+            </span>
             اكتشف منتجاتنا المميزة و اطلب ما تحتاجه عبر واتساب.
           </p>
         </div>
