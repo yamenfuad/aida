@@ -66,7 +66,7 @@ const Index = () => {
           />
           <p className="text-muted-foreground text-lg">
             <span 
-              onClick={() => navigate('/admin-login')}
+              onClick={() => navigate('/admin/login')}
               className="cursor-pointer opacity-0 hover:opacity-10 select-none"
             >
               •
