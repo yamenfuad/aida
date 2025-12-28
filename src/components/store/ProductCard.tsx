@@ -24,8 +24,8 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden bg-card shadow-card hover:shadow-hover transition-all duration-300 animate-slide-up">
-      <div className="aspect-[4/5] relative overflow-hidden bg-secondary">
+    <Card className="overflow-hidden bg-card shadow-card hover:shadow-hover transition-all duration-300 animate-slide-up rounded-2xl">
+      <div className="aspect-square relative overflow-hidden bg-primary/10 rounded-t-2xl">
         {product.image_url ? (
           <img
             src={product.image_url}
@@ -35,36 +35,39 @@ export function ProductCard({ product }: ProductCardProps) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <span className="text-4xl">📦</span>
+            <span className="text-6xl">📦</span>
           </div>
         )}
         {isInCart && (
-          <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+          <div className="absolute top-3 left-3 bg-primary text-primary-foreground text-sm px-3 py-1 rounded-full font-medium">
             {cartItem.quantity} في السلة
           </div>
         )}
       </div>
-      <CardContent className="p-3">
-        <h3 className="font-semibold text-foreground text-sm line-clamp-2 mb-2 min-h-[2.5rem]">
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="bg-accent text-accent-foreground text-xs px-3 py-1 rounded-full font-medium">
+            {product.category}
+          </span>
+        </div>
+        <h3 className="font-bold text-foreground text-lg leading-tight">
           {product.name}
         </h3>
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-primary font-bold text-lg">
-            {formatPrice(product.price)}
-          </span>
-          <Button
-            size="sm"
-            onClick={handleAdd}
-            disabled={isAdding}
-            className="shrink-0 bg-accent hover:bg-accent/90 text-accent-foreground"
-          >
-            {isAdding ? (
-              <Check className="w-4 h-4" />
-            ) : (
-              <Plus className="w-4 h-4" />
-            )}
-          </Button>
-        </div>
+        <p className="text-primary font-bold text-2xl">
+          {formatPrice(product.price)}
+        </p>
+        <Button
+          onClick={handleAdd}
+          disabled={isAdding}
+          className="w-full bg-accent hover:bg-accent/90 text-accent-foreground text-lg py-6 rounded-xl font-bold"
+        >
+          {isAdding ? (
+            <Check className="w-5 h-5 ml-2" />
+          ) : (
+            <Plus className="w-5 h-5 ml-2" />
+          )}
+          إضافة للسلة
+        </Button>
       </CardContent>
     </Card>
   );
