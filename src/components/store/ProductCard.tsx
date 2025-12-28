@@ -45,11 +45,6 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
       <CardContent className="p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="bg-accent text-accent-foreground text-xs px-3 py-1 rounded-full font-medium">
-            {product.category}
-          </span>
-        </div>
         <h3 className="font-bold text-foreground text-lg leading-tight">
           {product.name}
         </h3>
