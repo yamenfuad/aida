@@ -19,6 +19,7 @@ export type Database = {
           available: boolean
           category: Database["public"]["Enums"]["product_category"]
           created_at: string
+          description: string | null
           id: string
           image_url: string | null
           name: string
@@ -28,6 +29,7 @@ export type Database = {
           available?: boolean
           category?: Database["public"]["Enums"]["product_category"]
           created_at?: string
+          description?: string | null
           id?: string
           image_url?: string | null
           name: string
@@ -37,6 +39,7 @@ export type Database = {
           available?: boolean
           category?: Database["public"]["Enums"]["product_category"]
           created_at?: string
+          description?: string | null
           id?: string
           image_url?: string | null
           name?: string

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,8 +11,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, Plus, Pencil, Trash2, Search, LogOut, Store, Settings, Package, Download } from 'lucide-react';
+import { Loader2, Plus, Pencil, Trash2, Search, LogOut, Store, Settings, Package, Download, Upload, ImageIcon, ArrowLeft } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function AdminDashboard() {
@@ -30,8 +31,15 @@ export default function AdminDashboard() {
   const [formName, setFormName] = useState('');
   const [formPrice, setFormPrice] = useState('');
   const [formImageUrl, setFormImageUrl] = useState('');
+  const [formDescription, setFormDescription] = useState('');
   const [formCategory, setFormCategory] = useState<ProductCategory>('المواد الأساسية');
   const [formAvailable, setFormAvailable] = useState(true);
+  
+  // Two-step add product state
+  const [addStep, setAddStep] = useState<'upload' | 'form'>('upload');
+  const [imageUploaded, setImageUploaded] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Settings
   const [whatsappNumber, setWhatsappNumber] = useState('');
@@ -120,8 +128,11 @@ export default function AdminDashboard() {
     setFormName('');
     setFormPrice('');
     setFormImageUrl('');
+    setFormDescription('');
     setFormCategory('المواد الأساسية');
     setFormAvailable(true);
+    setAddStep('upload');
+    setImageUploaded(false);
     setIsDialogOpen(true);
   };
 
@@ -130,9 +141,61 @@ export default function AdminDashboard() {
     setFormName(product.name);
     setFormPrice(product.price.toString());
     setFormImageUrl(product.image_url || '');
+    setFormDescription((product as any).description || '');
     setFormCategory(product.category);
     setFormAvailable(product.available);
+    setAddStep('form');
+    setImageUploaded(true);
     setIsDialogOpen(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'خطأ',
+        description: 'يرجى اختيار ملف صورة فقط',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `products/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('aida-img')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('aida-img')
+        .getPublicUrl(filePath);
+
+      setFormImageUrl(urlData.publicUrl);
+      setImageUploaded(true);
+      setAddStep('form');
+      
+      toast({
+        title: 'تم الرفع',
+        description: 'تم رفع الصورة بنجاح',
+      });
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast({
+        title: 'خطأ في الرفع',
+        description: error.message || 'فشل في رفع الصورة',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSaveProduct = async () => {
@@ -150,6 +213,7 @@ export default function AdminDashboard() {
       name: formName.trim(),
       price: parseFloat(formPrice),
       image_url: formImageUrl.trim() || null,
+      description: formDescription.trim() || null,
       category: formCategory,
       available: formAvailable,
     };
@@ -277,64 +341,130 @@ export default function AdminDashboard() {
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
                   <DialogHeader>
-                    <DialogTitle>
-                      {editingProduct ? 'تعديل المنتج' : 'إضافة منتج جديد'}
+                    <DialogTitle className="flex items-center gap-2">
+                      {!editingProduct && addStep === 'form' && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setAddStep('upload');
+                            setImageUploaded(false);
+                            setFormImageUrl('');
+                          }}
+                          className="p-1 h-auto"
+                        >
+                          <ArrowLeft className="w-4 h-4" />
+                        </Button>
+                      )}
+                      {editingProduct ? 'تعديل المنتج' : (addStep === 'upload' ? 'رفع صورة المنتج' : 'إضافة منتج جديد')}
                     </DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label>اسم المنتج *</Label>
-                      <Input
-                        value={formName}
-                        onChange={(e) => setFormName(e.target.value)}
-                        placeholder="أدخل اسم المنتج"
+                  
+                  {/* Step 1: Image Upload */}
+                  {!editingProduct && addStep === 'upload' && (
+                    <div className="py-8">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={handleImageUpload}
+                        className="hidden"
                       />
+                      <div 
+                        onClick={() => !uploading && fileInputRef.current?.click()}
+                        className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors"
+                      >
+                        {uploading ? (
+                          <div className="flex flex-col items-center gap-3">
+                            <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                            <p className="text-muted-foreground">جاري رفع الصورة...</p>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-3">
+                            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Upload className="w-8 h-8 text-primary" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-foreground">اضغط لاختيار صورة</p>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                يجب رفع صورة المنتج أولاً
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label>السعر (ر.س) *</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={formPrice}
-                        onChange={(e) => setFormPrice(e.target.value)}
-                        placeholder="0.00"
-                        dir="ltr"
-                        className="text-left"
-                      />
+                  )}
+
+                  {/* Step 2: Product Form - shown after image upload or when editing */}
+                  {(addStep === 'form' && imageUploaded) && (
+                    <div className="space-y-4 py-4">
+                      {/* Image Preview */}
+                      {formImageUrl && (
+                        <div className="flex justify-center">
+                          <div className="w-32 h-32 rounded-xl overflow-hidden border border-border">
+                            <img
+                              src={formImageUrl}
+                              alt="صورة المنتج"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="space-y-2">
+                        <Label>اسم المنتج *</Label>
+                        <Input
+                          value={formName}
+                          onChange={(e) => setFormName(e.target.value)}
+                          placeholder="أدخل اسم المنتج"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>وصف المنتج</Label>
+                        <Textarea
+                          value={formDescription}
+                          onChange={(e) => setFormDescription(e.target.value)}
+                          placeholder="أدخل وصف المنتج"
+                          rows={3}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>السعر (ر.س) *</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={formPrice}
+                          onChange={(e) => setFormPrice(e.target.value)}
+                          placeholder="0.00"
+                          dir="ltr"
+                          className="text-left"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>التصنيف</Label>
+                        <Select value={formCategory} onValueChange={(v) => setFormCategory(v as ProductCategory)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {CATEGORIES.map((cat) => (
+                              <SelectItem key={cat} value={cat}>
+                                {cat}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label>متوفر</Label>
+                        <Switch checked={formAvailable} onCheckedChange={setFormAvailable} />
+                      </div>
+                      <Button onClick={handleSaveProduct} className="w-full" disabled={saving}>
+                        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'حفظ المنتج'}
+                      </Button>
                     </div>
-                    <div className="space-y-2">
-                      <Label>رابط الصورة</Label>
-                      <Input
-                        value={formImageUrl}
-                        onChange={(e) => setFormImageUrl(e.target.value)}
-                        placeholder="https://..."
-                        dir="ltr"
-                        className="text-left"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>التصنيف</Label>
-                      <Select value={formCategory} onValueChange={(v) => setFormCategory(v as ProductCategory)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {CATEGORIES.map((cat) => (
-                            <SelectItem key={cat} value={cat}>
-                              {cat}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label>متوفر</Label>
-                      <Switch checked={formAvailable} onCheckedChange={setFormAvailable} />
-                    </div>
-                    <Button onClick={handleSaveProduct} className="w-full" disabled={saving}>
-                      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'حفظ'}
-                    </Button>
-                  </div>
+                  )}
                 </DialogContent>
               </Dialog>
             </div>
