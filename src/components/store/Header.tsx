@@ -67,7 +67,7 @@ export function Header({ onCartClick }: HeaderProps) {
             <a href={appDownloadUrl} download>
               <Button variant="outline" size="sm" className="gap-2">
                 <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">تنزيل التطبيق</span>
+                <span>تنزيل التطبيق</span>
               </Button>
             </a>
           )}
