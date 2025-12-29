@@ -24,7 +24,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden bg-card shadow-card hover:shadow-hover transition-all duration-300 animate-slide-up rounded-2xl">
+    <Card className="overflow-hidden bg-card shadow-card hover:shadow-hover transition-all duration-300 animate-slide-up rounded-2xl mx-2">
       <div className="aspect-square relative overflow-hidden bg-primary/10 rounded-t-2xl">
         {product.image_url ? (
           <img

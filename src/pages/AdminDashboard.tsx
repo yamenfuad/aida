@@ -412,6 +412,48 @@ export default function AdminDashboard() {
                         </div>
                       )}
                       
+                      {/* Image URL Input - for editing */}
+                      {editingProduct && (
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2">
+                            <ImageIcon className="w-4 h-4" />
+                            رابط الصورة
+                          </Label>
+                          <Input
+                            value={formImageUrl}
+                            onChange={(e) => setFormImageUrl(e.target.value)}
+                            placeholder="أدخل رابط الصورة"
+                            dir="ltr"
+                            className="text-left text-sm"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            يمكنك تغيير رابط الصورة يدوياً أو رفع صورة جديدة
+                          </p>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            ref={fileInputRef}
+                            onChange={handleImageUpload}
+                            className="hidden"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploading}
+                            className="w-full gap-2"
+                          >
+                            {uploading ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Upload className="w-4 h-4" />
+                            )}
+                            رفع صورة جديدة
+                          </Button>
+                        </div>
+                      )}
+                      
                       <div className="space-y-2">
                         <Label>اسم المنتج *</Label>
                         <Input

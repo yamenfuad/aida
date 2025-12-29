@@ -5,6 +5,7 @@ import { SearchBar } from '@/components/store/SearchBar';
 import { CategoryFilter } from '@/components/store/CategoryFilter';
 import { ProductGrid } from '@/components/store/ProductGrid';
 import { CartDrawer } from '@/components/store/CartDrawer';
+import { DownloadAppButton } from '@/components/store/DownloadAppButton';
 import { Product, ProductCategory } from '@/types/product';
 import { supabase } from '@/integrations/supabase/client';
 import aidaLogo from '@/assets/Aida.png';
@@ -55,24 +56,31 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="py-8 bg-gradient-to-b from-primary/10 to-background">
-        <div className="container text-center space-y-4">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-            مرحباً بك في متجرنا
-          </h1>
-          <img 
-            src={aidaLogo} 
-            alt="شعار المتجر" 
-            className="w-32 h-32 md:w-40 md:h-40 mx-auto object-contain"
-          />
-          <p className="text-muted-foreground text-lg">
-            <span 
-              onClick={() => navigate('/admin/login')}
-              className="cursor-pointer opacity-0 hover:opacity-10 select-none"
-            >
-              •
-            </span>
-            اكتشف منتجاتنا المميزة و اطلب ما تحتاجه عبر واتساب.
-          </p>
+        <div className="container space-y-4">
+          {/* Download App Button - Top Right */}
+          <div className="flex justify-end">
+            <DownloadAppButton />
+          </div>
+          
+          <div className="text-center space-y-4">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+              مرحباً بك في متجرنا
+            </h1>
+            <img 
+              src={aidaLogo} 
+              alt="شعار المتجر" 
+              className="w-32 h-32 md:w-40 md:h-40 mx-auto object-contain"
+            />
+            <p className="text-muted-foreground text-lg">
+              <span 
+                onClick={() => navigate('/admin/login')}
+                className="cursor-pointer opacity-0 hover:opacity-10 select-none"
+              >
+                •
+              </span>
+              اكتشف منتجاتنا المميزة و اطلب ما تحتاجه عبر واتساب.
+            </p>
+          </div>
         </div>
       </section>
 
