@@ -397,7 +397,7 @@ export default function AdminDashboard() {
                   )}
 
                   {/* Step 2: Product Form - shown after image upload or when editing */}
-                  {(addStep === 'form' && imageUploaded) && (
+                  {(addStep === 'form' && (imageUploaded || editingProduct)) && (
                     <div className="space-y-4 py-4">
                       {/* Image Preview */}
                       {formImageUrl && (
