@@ -398,117 +398,121 @@ export default function AdminDashboard() {
 
                   {/* Step 2: Product Form - shown after image upload or when editing */}
                   {(addStep === 'form' && (imageUploaded || editingProduct)) && (
-                    <div className="space-y-4 py-4">
-                      {/* Image Preview */}
-                      {formImageUrl && (
-                        <div className="flex justify-center">
-                          <div className="w-32 h-32 rounded-xl overflow-hidden border border-border">
-                            <img
-                              src={formImageUrl}
-                              alt="صورة المنتج"
-                              className="w-full h-full object-cover"
-                            />
+                    <div className="flex flex-col max-h-[70vh]">
+                      <div className="space-y-4 py-4 overflow-y-auto flex-1">
+                        {/* Image Preview */}
+                        {formImageUrl && (
+                          <div className="flex justify-center">
+                            <div className="w-32 h-32 rounded-xl overflow-hidden border border-border">
+                              <img
+                                src={formImageUrl}
+                                alt="صورة المنتج"
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      
-                      {/* Image URL Input - for editing */}
-                      {editingProduct && (
-                        <div className="space-y-2">
-                          <Label className="flex items-center gap-2">
-                            <ImageIcon className="w-4 h-4" />
-                            رابط الصورة
-                          </Label>
-                          <Input
-                            value={formImageUrl}
-                            onChange={(e) => setFormImageUrl(e.target.value)}
-                            placeholder="أدخل رابط الصورة"
-                            dir="ltr"
-                            className="text-left text-sm"
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            يمكنك تغيير رابط الصورة يدوياً أو رفع صورة جديدة
-                          </p>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            ref={fileInputRef}
-                            onChange={handleImageUpload}
-                            className="hidden"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={uploading}
-                            className="w-full gap-2"
-                          >
-                            {uploading ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <Upload className="w-4 h-4" />
-                            )}
-                            رفع صورة جديدة
-                          </Button>
-                        </div>
-                      )}
-                      
-                      <div className="space-y-2">
-                        <Label>اسم المنتج *</Label>
-                        <Input
-                          value={formName}
-                          onChange={(e) => setFormName(e.target.value)}
-                          placeholder="أدخل اسم المنتج"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>وصف المنتج</Label>
-                        <Textarea
-                          value={formDescription}
-                          onChange={(e) => setFormDescription(e.target.value)}
-                          placeholder="أدخل وصف المنتج"
-                          rows={3}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>السعر (ر.س) *</Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={formPrice}
-                          onChange={(e) => setFormPrice(e.target.value)}
-                          placeholder="0.00"
-                          dir="ltr"
-                          className="text-left"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>التصنيف</Label>
-                        <Select value={formCategory} onValueChange={(v) => setFormCategory(v as ProductCategory)}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {CATEGORIES.map((cat) => (
-                              <SelectItem key={cat} value={cat}>
-                                {cat}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <Label>متوفر</Label>
-                        <Switch checked={formAvailable} onCheckedChange={setFormAvailable} />
-                      </div>
-                      <Button onClick={handleSaveProduct} className="w-full gap-2" disabled={saving}>
-                        {saving ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          editingProduct ? 'حفظ التعديلات' : 'حفظ المنتج'
                         )}
-                      </Button>
+                        
+                        {/* Image URL Input - for editing */}
+                        {editingProduct && (
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2">
+                              <ImageIcon className="w-4 h-4" />
+                              رابط الصورة
+                            </Label>
+                            <Input
+                              value={formImageUrl}
+                              onChange={(e) => setFormImageUrl(e.target.value)}
+                              placeholder="أدخل رابط الصورة"
+                              dir="ltr"
+                              className="text-left text-sm"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              يمكنك تغيير رابط الصورة يدوياً أو رفع صورة جديدة
+                            </p>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              ref={fileInputRef}
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={uploading}
+                              className="w-full gap-2"
+                            >
+                              {uploading ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Upload className="w-4 h-4" />
+                              )}
+                              رفع صورة جديدة
+                            </Button>
+                          </div>
+                        )}
+                        
+                        <div className="space-y-2">
+                          <Label>اسم المنتج *</Label>
+                          <Input
+                            value={formName}
+                            onChange={(e) => setFormName(e.target.value)}
+                            placeholder="أدخل اسم المنتج"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>وصف المنتج</Label>
+                          <Textarea
+                            value={formDescription}
+                            onChange={(e) => setFormDescription(e.target.value)}
+                            placeholder="أدخل وصف المنتج"
+                            rows={3}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>السعر (ر.س) *</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={formPrice}
+                            onChange={(e) => setFormPrice(e.target.value)}
+                            placeholder="0.00"
+                            dir="ltr"
+                            className="text-left"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>التصنيف</Label>
+                          <Select value={formCategory} onValueChange={(v) => setFormCategory(v as ProductCategory)}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CATEGORIES.map((cat) => (
+                                <SelectItem key={cat} value={cat}>
+                                  {cat}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label>متوفر</Label>
+                          <Switch checked={formAvailable} onCheckedChange={setFormAvailable} />
+                        </div>
+                      </div>
+                      <div className="pt-4 border-t border-border mt-2">
+                        <Button onClick={handleSaveProduct} className="w-full gap-2" disabled={saving}>
+                          {saving ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            editingProduct ? 'حفظ التعديلات' : 'حفظ المنتج'
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </DialogContent>
