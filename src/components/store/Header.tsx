@@ -1,10 +1,9 @@
-import { ShoppingCart, Download } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
 import aidaLogo from '@/assets/Aida.png';
 
 interface HeaderProps {
@@ -13,24 +12,7 @@ interface HeaderProps {
 
 export function Header({ onCartClick }: HeaderProps) {
   const { totalItems } = useCart();
-  const [appDownloadUrl, setAppDownloadUrl] = useState('');
   const [showLogoDialog, setShowLogoDialog] = useState(false);
-
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
-    const { data, error } = await supabase
-      .from('store_settings')
-      .select('app_download_url')
-      .limit(1)
-      .maybeSingle();
-
-    if (data && !error) {
-      setAppDownloadUrl(data.app_download_url || '');
-    }
-  };
 
   return (
     <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border shadow-soft">
@@ -63,14 +45,6 @@ export function Header({ onCartClick }: HeaderProps) {
         </Dialog>
 
         <div className="flex items-center gap-2">
-          {appDownloadUrl && (
-            <a href={appDownloadUrl} download>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Download className="w-4 h-4" />
-                <span>تنزيل التطبيق</span>
-              </Button>
-            </a>
-          )}
           <Button
             variant="outline"
             size="icon"
