@@ -502,9 +502,18 @@ export default function AdminDashboard() {
                         <Label>متوفر</Label>
                         <Switch checked={formAvailable} onCheckedChange={setFormAvailable} />
                       </div>
-                      <Button onClick={handleSaveProduct} className="w-full" disabled={saving}>
-                        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'حفظ المنتج'}
-                      </Button>
+                      <div className="flex gap-2 pt-2">
+                        <Button onClick={handleSaveProduct} className="flex-1" disabled={saving}>
+                          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'حفظ التعديلات'}
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setIsDialogOpen(false)}
+                          disabled={saving}
+                        >
+                          رجوع
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </DialogContent>
