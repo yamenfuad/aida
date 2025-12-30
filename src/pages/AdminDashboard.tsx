@@ -502,8 +502,12 @@ export default function AdminDashboard() {
                         <Label>متوفر</Label>
                         <Switch checked={formAvailable} onCheckedChange={setFormAvailable} />
                       </div>
-                      <Button onClick={handleSaveProduct} className="w-full" disabled={saving}>
-                        {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'حفظ المنتج'}
+                      <Button onClick={handleSaveProduct} className="w-full gap-2" disabled={saving}>
+                        {saving ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          editingProduct ? 'حفظ التعديلات' : 'حفظ المنتج'
+                        )}
                       </Button>
                     </div>
                   )}
