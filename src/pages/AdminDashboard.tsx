@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Product, ProductCategory, CATEGORIES, StoreSettings } from '@/types/product';
@@ -15,6 +16,28 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Plus, Pencil, Trash2, Search, LogOut, Store, Settings, Package, Download, Upload, ImageIcon, ArrowLeft } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+// Product validation schema - note: we validate the input and then coerce to required types
+const productSchema = z.object({
+  name: z.string().trim().min(1, 'اسم المنتج مطلوب').max(200, 'اسم المنتج يجب أن يكون أقل من 200 حرف'),
+  price: z.number().min(0, 'السعر يجب أن يكون 0 أو أكثر').max(999999, 'السعر يجب أن يكون أقل من 1,000,000'),
+  image_url: z.string().nullable(),
+  description: z.string().max(5000, 'الوصف يجب أن يكون أقل من 5000 حرف').nullable(),
+  category: z.enum([
+    'المواد الأساسية',
+    'الزيوت والمعلبات',
+    'المشروبات',
+    'الألبان والأجبان',
+    'الحلويات والشبس',
+    'المخبوزات',
+    'التنظيف',
+    'العناية الشخصية',
+    'المجمدات',
+    'مستلزمات المنزل',
+    'مستلزمات الأطفال',
+  ]),
+  available: z.boolean(),
+});
 
 export default function AdminDashboard() {
   const { user, isAdmin, loading: authLoading, signOut } = useAuth();
@@ -199,29 +222,47 @@ export default function AdminDashboard() {
   };
 
   const handleSaveProduct = async () => {
-    if (!formName.trim() || !formPrice) {
-      toast({
-        title: 'خطأ',
-        description: 'الرجاء ملء جميع الحقول المطلوبة',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setSaving(true);
+    // Parse price to number for validation
+    const parsedPrice = parseFloat(formPrice);
+    
+    // Build the product data object
     const productData = {
       name: formName.trim(),
-      price: parseFloat(formPrice),
+      price: isNaN(parsedPrice) ? -1 : parsedPrice, // Set invalid price for validation to catch
       image_url: formImageUrl.trim() || null,
       description: formDescription.trim() || null,
       category: formCategory,
       available: formAvailable,
     };
 
+    // Validate with Zod schema
+    const validation = productSchema.safeParse(productData);
+    if (!validation.success) {
+      const firstError = validation.error.errors[0];
+      toast({
+        title: 'خطأ في البيانات',
+        description: firstError.message,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSaving(true);
+    
+    // Cast to the correct type for Supabase insert
+    const validatedData = {
+      name: validation.data.name,
+      price: validation.data.price,
+      image_url: validation.data.image_url,
+      description: validation.data.description,
+      category: validation.data.category,
+      available: validation.data.available,
+    };
+
     if (editingProduct) {
       const { error } = await supabase
         .from('products')
-        .update(productData)
+        .update(validatedData)
         .eq('id', editingProduct.id);
 
       if (error) {
@@ -236,7 +277,7 @@ export default function AdminDashboard() {
         setIsDialogOpen(false);
       }
     } else {
-      const { error } = await supabase.from('products').insert([productData]);
+      const { error } = await supabase.from('products').insert([validatedData]);
 
       if (error) {
         toast({
