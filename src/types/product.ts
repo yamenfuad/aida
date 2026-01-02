@@ -10,7 +10,8 @@ export type ProductCategory =
   | 'المجمدات'
   | 'مستلزمات المنزل'
   | 'مستلزمات الأطفال'
-  | 'أدوات مدرسية';
+  | 'أدوات مدرسية'
+  | 'خضروات';
 
 export interface Product {
   id: string;
@@ -46,4 +47,5 @@ export const CATEGORIES: ProductCategory[] = [
   'مستلزمات المنزل',
   'مستلزمات الأطفال',
   'أدوات مدرسية',
+  'خضروات',
 ];
