@@ -15,6 +15,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Plus, Pencil, Trash2, Search, LogOut, Store, Settings, Package, Download, Upload, ImageIcon, ArrowLeft } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { z } from 'zod';
+
+// Validation schema for store settings
+const settingsSchema = z.object({
+  whatsapp_number: z.string()
+    .regex(/^[0-9]{10,15}$/, 'رقم واتساب يجب أن يحتوي على 10-15 رقم فقط'),
+  app_download_url: z.string()
+    .url('رابط التطبيق غير صالح')
+    .or(z.literal(''))
+});
 
 export default function AdminDashboard() {
   const { user, isAdmin, loading: authLoading, signOut } = useAuth();
@@ -98,12 +108,30 @@ export default function AdminDashboard() {
   };
 
   const handleSaveSettings = async () => {
+    // Clean the WhatsApp number - remove non-digits
+    const cleanedWhatsappNumber = whatsappNumber.replace(/\D/g, '');
+    
+    // Validate inputs
+    const validation = settingsSchema.safeParse({
+      whatsapp_number: cleanedWhatsappNumber,
+      app_download_url: appDownloadUrl.trim()
+    });
+    
+    if (!validation.success) {
+      toast({
+        title: 'خطأ في البيانات',
+        description: validation.error.errors[0].message,
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setSavingSettings(true);
     const { error } = await supabase
       .from('store_settings')
       .update({ 
-        whatsapp_number: whatsappNumber, 
-        app_download_url: appDownloadUrl,
+        whatsapp_number: cleanedWhatsappNumber, 
+        app_download_url: appDownloadUrl.trim(),
         updated_at: new Date().toISOString() 
       })
       .not('id', 'is', null);
@@ -115,6 +143,8 @@ export default function AdminDashboard() {
         variant: 'destructive',
       });
     } else {
+      // Update state with cleaned value
+      setWhatsappNumber(cleanedWhatsappNumber);
       toast({
         title: 'تم الحفظ',
         description: 'تم حفظ الإعدادات بنجاح',
