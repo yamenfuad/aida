@@ -12,7 +12,8 @@ export type ProductCategory =
   | 'مستلزمات الأطفال'
   | 'أدوات مدرسية'
   | 'خضروات'
-  | 'مستلزمات تجميل';
+  | 'مستلزمات تجميل'
+  | 'أخرى';
 
 export interface Product {
   id: string;
@@ -50,4 +51,5 @@ export const CATEGORIES: ProductCategory[] = [
   'أدوات مدرسية',
   'خضروات',
   'مستلزمات تجميل',
+  'أخرى',
 ];
