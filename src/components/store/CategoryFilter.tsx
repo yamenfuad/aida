@@ -9,26 +9,29 @@ interface CategoryFilterProps {
 
 export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
   return (
-    <div className="flex flex-wrap gap-2">
-      <Button
-        variant={selected === null ? 'default' : 'outline'}
-        size="sm"
-        onClick={() => onSelect(null)}
-        className="shrink-0"
-      >
-        الكل
-      </Button>
-      {CATEGORIES.map((category) => (
+    <ScrollArea className="w-full whitespace-nowrap">
+      <div className="flex gap-2 pb-2">
         <Button
-          key={category}
-          variant={selected === category ? 'default' : 'outline'}
+          variant={selected === null ? 'default' : 'outline'}
           size="sm"
-          onClick={() => onSelect(category)}
+          onClick={() => onSelect(null)}
           className="shrink-0"
         >
-          {category}
+          الكل
         </Button>
-      ))}
-    </div>
+        {CATEGORIES.map((category) => (
+          <Button
+            key={category}
+            variant={selected === category ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => onSelect(category)}
+            className="shrink-0"
+          >
+            {category}
+          </Button>
+        ))}
+      </div>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
   );
 }
