@@ -84,9 +84,15 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Sticky Category Filter */}
+      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b border-border py-3 px-4">
+        <div className="container">
+          <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
+        </div>
+      </div>
+
       <main className="container py-4 space-y-4">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
-        <CategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
         <ProductGrid products={filteredProducts} loading={loading} />
       </main>
 
