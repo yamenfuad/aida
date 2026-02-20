@@ -179,6 +179,46 @@ export default function AdminDashboard() {
     setIsDialogOpen(true);
   };
 
+  const compressImage = (file: File, maxSizeKB: number): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        let quality = 0.9;
+        
+        const tryCompress = () => {
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d')!;
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) { resolve(new Blob([file])); return; }
+              if (blob.size <= maxSizeKB * 1024 || quality <= 0.1) {
+                resolve(blob);
+              } else {
+                quality -= 0.1;
+                if (quality <= 0.3 && blob.size > maxSizeKB * 1024) {
+                  // Also reduce dimensions
+                  width = Math.floor(width * 0.85);
+                  height = Math.floor(height * 0.85);
+                }
+                tryCompress();
+              }
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+        tryCompress();
+      };
+      img.src = url;
+    });
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -194,13 +234,17 @@ export default function AdminDashboard() {
 
     setUploading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      let uploadFile: Blob = file;
+      if (file.size > 50 * 1024) {
+        uploadFile = await compressImage(file, 50);
+      }
+
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.jpg`;
       const filePath = `products/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('aida-img')
-        .upload(filePath, file);
+        .upload(filePath, uploadFile, { contentType: 'image/jpeg' });
 
       if (uploadError) throw uploadError;
 
