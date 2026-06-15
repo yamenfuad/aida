@@ -187,7 +187,7 @@ export default function AdminDashboard() {
         URL.revokeObjectURL(url);
         const canvas = document.createElement('canvas');
         let { width, height } = img;
-        let quality = 0.9;
+        const quality = 0.92;
         
         const tryCompress = () => {
           canvas.width = width;
@@ -197,15 +197,11 @@ export default function AdminDashboard() {
           canvas.toBlob(
             (blob) => {
               if (!blob) { resolve(new Blob([file])); return; }
-              if (blob.size <= maxSizeKB * 1024 || quality <= 0.1) {
+              if (blob.size <= maxSizeKB * 1024 || width < 300 || height < 300) {
                 resolve(blob);
               } else {
-                quality -= 0.1;
-                if (quality <= 0.3 && blob.size > maxSizeKB * 1024) {
-                  // Also reduce dimensions
-                  width = Math.floor(width * 0.85);
-                  height = Math.floor(height * 0.85);
-                }
+                width = Math.floor(width * 0.85);
+                height = Math.floor(height * 0.85);
                 tryCompress();
               }
             },
