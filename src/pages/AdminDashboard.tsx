@@ -187,7 +187,7 @@ export default function AdminDashboard() {
         URL.revokeObjectURL(url);
         const canvas = document.createElement('canvas');
         let { width, height } = img;
-        let quality = 0.9;
+        const quality = 0.92;
         
         const tryCompress = () => {
           canvas.width = width;
@@ -197,15 +197,11 @@ export default function AdminDashboard() {
           canvas.toBlob(
             (blob) => {
               if (!blob) { resolve(new Blob([file])); return; }
-              if (blob.size <= maxSizeKB * 1024 || quality <= 0.1) {
+              if (blob.size <= maxSizeKB * 1024 || width < 300 || height < 300) {
                 resolve(blob);
               } else {
-                quality -= 0.1;
-                if (quality <= 0.3 && blob.size > maxSizeKB * 1024) {
-                  // Also reduce dimensions
-                  width = Math.floor(width * 0.85);
-                  height = Math.floor(height * 0.85);
-                }
+                width = Math.floor(width * 0.85);
+                height = Math.floor(height * 0.85);
                 tryCompress();
               }
             },
@@ -486,33 +482,80 @@ export default function AdminDashboard() {
                             </div>
                           </div>
                         )}
-
+                        
+                        {/* Image URL Input - for editing */}
+                        {editingProduct && (
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2">
+                              <ImageIcon className="w-4 h-4" />
+                              رابط الصورة
+                            </Label>
+                            <Input
+                              value={formImageUrl}
+                              onChange={(e) => setFormImageUrl(e.target.value)}
+                              placeholder="أدخل رابط الصورة"
+                              dir="ltr"
+                              className="text-left text-sm"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              يمكنك تغيير رابط الصورة يدوياً أو رفع صورة جديدة
+                            </p>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              ref={fileInputRef}
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => fileInputRef.current?.click()}
+                              disabled={uploading}
+                              className="w-full gap-2"
+                            >
+                              {uploading ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Upload className="w-4 h-4" />
+                              )}
+                              رفع صورة جديدة
+                            </Button>
+                          </div>
+                        )}
+                        
                         <div className="space-y-2">
-                          <Label htmlFor="name">اسم المنتج *</Label>
+                          <Label>اسم المنتج *</Label>
                           <Input
-                            id="name"
-                            placeholder="مثال: أرز بسمتي"
                             value={formName}
                             onChange={(e) => setFormName(e.target.value)}
-                            dir="rtl"
+                            placeholder="أدخل اسم المنتج"
                           />
                         </div>
-
                         <div className="space-y-2">
-                          <Label htmlFor="price">السعر (ريال) *</Label>
+                          <Label>وصف المنتج</Label>
+                          <Textarea
+                            value={formDescription}
+                            onChange={(e) => setFormDescription(e.target.value)}
+                            placeholder="أدخل وصف المنتج"
+                            rows={3}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>السعر (ر.س) *</Label>
                           <Input
-                            id="price"
                             type="number"
-                            placeholder="مثال: 25"
+                            step="0.01"
                             value={formPrice}
                             onChange={(e) => setFormPrice(e.target.value)}
-                            min="0"
-                            step="1"
+                            placeholder="0.00"
+                            dir="ltr"
+                            className="text-left"
                           />
                         </div>
-
                         <div className="space-y-2">
-                          <Label htmlFor="category">التصنيف *</Label>
+                          <Label>التصنيف</Label>
                           <Select value={formCategory} onValueChange={(v) => setFormCategory(v as ProductCategory)}>
                             <SelectTrigger>
                               <SelectValue />
@@ -526,48 +569,17 @@ export default function AdminDashboard() {
                             </SelectContent>
                           </Select>
                         </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="description">الوصف (اختياري)</Label>
-                          <Textarea
-                            id="description"
-                            placeholder="وصف المنتج..."
-                            value={formDescription}
-                            onChange={(e) => setFormDescription(e.target.value)}
-                            dir="rtl"
-                            rows={3}
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between py-2">
-                          <Label htmlFor="available">متاح للبيع</Label>
-                          <Switch
-                            id="available"
-                            checked={formAvailable}
-                            onCheckedChange={setFormAvailable}
-                          />
+                        <div className="flex items-center justify-between">
+                          <Label>متوفر</Label>
+                          <Switch checked={formAvailable} onCheckedChange={setFormAvailable} />
                         </div>
                       </div>
-
-                      <div className="flex gap-3 pt-4 border-t border-border mt-2">
-                        <Button
-                          variant="outline"
-                          className="flex-1"
-                          onClick={() => setIsDialogOpen(false)}
-                        >
-                          إلغاء
-                        </Button>
-                        <Button
-                          className="flex-1"
-                          onClick={handleSaveProduct}
-                          disabled={saving}
-                        >
+                      <div className="pt-4 border-t border-border mt-2">
+                        <Button onClick={handleSaveProduct} className="w-full gap-2" disabled={saving}>
                           {saving ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : editingProduct ? (
-                            'حفظ التعديلات'
                           ) : (
-                            'إضافة المنتج'
+                            editingProduct ? 'حفظ التعديلات' : 'حفظ المنتج'
                           )}
                         </Button>
                       </div>
@@ -577,206 +589,118 @@ export default function AdminDashboard() {
               </Dialog>
             </div>
 
-            {/* Products Grid */}
-            {filteredProducts.length === 0 ? (
-              <div className="text-center py-16">
-                <Package className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground text-lg">لا توجد منتجات</p>
-                <p className="text-sm text-muted-foreground mt-1">اضغط "إضافة منتج" لإضافة منتج جديد</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredProducts.map((product) => (
-                  <Card key={product.id} className={`overflow-hidden ${!product.available ? 'opacity-60' : ''}`}>
-                    <div className="aspect-square bg-muted relative">
-                      {product.image_url ? (
-                        <img
-                          src={product.image_url}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <ImageIcon className="w-16 h-16 text-muted-foreground" />
+            <div className="grid gap-4">
+              {filteredProducts.map((product) => (
+                <Card key={product.id} className="shadow-card">
+                  <CardContent className="p-4">
+                    <div className="flex gap-4">
+                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-secondary shrink-0">
+                        {product.image_url ? (
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h3 className="font-semibold text-foreground">{product.name}</h3>
+                            <p className="text-sm text-muted-foreground">{product.category}</p>
+                            <p className="text-primary font-bold mt-1">
+                              {formatPrice(product.price)}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full ${
+                                product.available
+                                  ? 'bg-success/10 text-success'
+                                  : 'bg-destructive/10 text-destructive'
+                              }`}
+                            >
+                              {product.available ? 'متوفر' : 'غير متوفر'}
+                            </span>
+                          </div>
                         </div>
-                      )}
-                      {!product.available && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="text-white font-bold text-lg">غير متاح</span>
+                        <div className="flex gap-2 mt-3">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditDialog(product)}
+                          >
+                            <Pencil className="w-4 h-4 ml-1" />
+                            تعديل
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteProduct(product.id)}
+                          >
+                            <Trash2 className="w-4 h-4 ml-1" />
+                            حذف
+                          </Button>
                         </div>
-                      )}
+                      </div>
                     </div>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-bold text-foreground">{product.name}</h3>
-                          <p className="text-sm text-muted-foreground">{product.category}</p>
-                        </div>
-                        <p className="font-bold text-primary text-lg">{formatPrice(product.price)}</p>
-                      </div>
-                      {(product as any).description && (
-                        <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                          {(product as any).description}
-                        </p>
-                      )}
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => openEditDialog(product)}
-                        >
-                          <Pencil className="w-4 h-4 ml-2" />
-                          تعديل
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => handleDeleteProduct(product.id)}
-                        >
-                          <Trash2 className="w-4 h-4 ml-2" />
-                          حذف
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
+                  </CardContent>
+                </Card>
+              ))}
+
+              {filteredProducts.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>لا توجد منتجات</p>
+                </div>
+              )}
+            </div>
           </TabsContent>
 
-          <TabsContent value="settings" className="space-y-6">
-            <Card>
+          <TabsContent value="settings">
+            <Card className="max-w-md">
               <CardHeader>
                 <CardTitle>إعدادات المتجر</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* WhatsApp Number */}
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="whatsapp">رقم واتساب للطلبات</Label>
+                  <Label>رقم واتساب الطلبات</Label>
                   <Input
-                    id="whatsapp"
-                    placeholder="9665XXXXXXXX"
                     value={whatsappNumber}
                     onChange={(e) => setWhatsappNumber(e.target.value)}
+                    placeholder="966500000000"
                     dir="ltr"
+                    className="text-left"
                   />
-                  <p className="text-sm text-muted-foreground">
-                    أدخل رقم واتساب بدون علامة + (مثال: 966501234567)
+                  <p className="text-xs text-muted-foreground">
+                    أدخل الرقم بدون علامة + (مثال: 966500000000)
                   </p>
                 </div>
-
-                {/* App Download URL */}
                 <div className="space-y-2">
-                  <Label htmlFor="appUrl">رابط تحميل التطبيق</Label>
+                  <Label className="flex items-center gap-2">
+                    <Download className="w-4 h-4" />
+                    رابط تنزيل التطبيق
+                  </Label>
                   <Input
-                    id="appUrl"
-                    placeholder="https://..."
                     value={appDownloadUrl}
                     onChange={(e) => setAppDownloadUrl(e.target.value)}
+                    placeholder="https://example.com/app.apk"
                     dir="ltr"
+                    className="text-left"
                   />
-                  <p className="text-sm text-muted-foreground">
-                    رابط مباشر لتحميل تطبيق المتجر (اختياري)
+                  <p className="text-xs text-muted-foreground">
+                    أدخل رابط تنزيل التطبيق (اتركه فارغاً لإخفاء الزر)
                   </p>
                 </div>
-
-                <Button
-                  onClick={handleSaveSettings}
-                  disabled={savingSettings}
-                  className="w-full"
-                >
+                <Button onClick={handleSaveSettings} disabled={savingSettings}>
                   {savingSettings ? (
-                    <Loader2 className="w-4 h-4 animate-spin ml-2" />
-                  ) : null}
-                  حفظ الإعدادات
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    'حفظ الإعدادات'
+                  )}
                 </Button>
-              </CardContent>
-            </Card>
-
-            {/* Export / Import */}
-            <Card>
-              <CardHeader>
-                <CardTitle>نسخ احتياطي</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button
-                    variant="outline"
-                    className="flex-1 gap-2"
-                    onClick={async () => {
-                      const { data, error } = await supabase
-                        .from('products')
-                        .select('*')
-                        .order('created_at', { ascending: false });
-                      if (error) {
-                        toast({
-                          title: 'خطأ',
-                          description: 'فشل في تصدير المنتجات',
-                          variant: 'destructive',
-                        });
-                        return;
-                      }
-                      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `products-backup-${new Date().toISOString().split('T')[0]}.json`;
-                      a.click();
-                      URL.revokeObjectURL(url);
-                      toast({
-                        title: 'تم التصدير',
-                        description: 'تم تصدير المنتجات بنجاح',
-                      });
-                    }}
-                  >
-                    <Download className="w-4 h-4" />
-                    تصدير المنتجات
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="flex-1 gap-2"
-                    onClick={() => {
-                      const input = document.createElement('input');
-                      input.type = 'file';
-                      input.accept = '.json';
-                      input.onchange = async (e: any) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-                        try {
-                          const text = await file.text();
-                          const products = JSON.parse(text);
-                          const { error } = await supabase.from('products').insert(products.map((p: any) => ({
-                            name: p.name,
-                            price: p.price,
-                            image_url: p.image_url,
-                            description: p.description,
-                            category: p.category,
-                            available: p.available ?? true,
-                          })));
-                          if (error) throw error;
-                          toast({
-                            title: 'تم الاستيراد',
-                            description: `تم استيراد ${products.length} منتج بنجاح`,
-                          });
-                          fetchProducts();
-                        } catch (error: any) {
-                          toast({
-                            title: 'خطأ',
-                            description: error.message || 'فشل في استيراد المنتجات',
-                            variant: 'destructive',
-                          });
-                        }
-                      };
-                      input.click();
-                    }}
-                  >
-                    <Upload className="w-4 h-4" />
-                    استيراد المنتجات
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           </TabsContent>
