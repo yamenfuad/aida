@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      delivery_fees: {
+        Row: {
+          area_name: string
+          created_at: string
+          fee: number
+          id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          area_name: string
+          created_at?: string
+          fee?: number
+          id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          area_name?: string
+          created_at?: string
+          fee?: number
+          id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           available: boolean
