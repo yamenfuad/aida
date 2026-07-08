@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { Loader2, Plus, Pencil, Trash2, Search, LogOut, Store, Settings, Package, Download, Upload, ImageIcon, ArrowLeft } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DeliveryFeesManager } from '@/components/admin/DeliveryFeesManager';
 import { z } from 'zod';
 
 // Validation schema for store settings
@@ -659,7 +660,8 @@ export default function AdminDashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="settings">
+          <TabsContent value="settings" className="space-y-6">
+            <DeliveryFeesManager />
             <Card className="max-w-md">
               <CardHeader>
                 <CardTitle>إعدادات المتجر</CardTitle>
