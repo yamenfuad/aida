@@ -34,7 +34,7 @@ export const DeliveryFeesButton = () => {
         className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-semibold text-sm"
       >
         <Truck className="w-5 h-5" />
-        رسوم توصيل مجانية
+        رسوم توصيل رمزية
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
