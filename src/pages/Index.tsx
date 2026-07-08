@@ -6,6 +6,7 @@ import { CategoryFilter } from '@/components/store/CategoryFilter';
 import { ProductGrid } from '@/components/store/ProductGrid';
 import { CartDrawer } from '@/components/store/CartDrawer';
 import { DownloadAppButton } from '@/components/store/DownloadAppButton';
+import { DeliveryFeesButton } from '@/components/store/DeliveryFeesButton';
 import { Product, ProductCategory } from '@/types/product';
 import { supabase } from '@/integrations/supabase/client';
 import aidaLogo from '@/assets/Aida.png';
@@ -58,7 +59,8 @@ const Index = () => {
       <section className="py-8 bg-gradient-to-b from-primary/10 to-background">
         <div className="container space-y-4">
           {/* Download App Button - Top Right */}
-          <div className="flex justify-end">
+          <div className="flex items-center justify-between gap-2">
+            <DeliveryFeesButton />
             <DownloadAppButton />
           </div>
           
